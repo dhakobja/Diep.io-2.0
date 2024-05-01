@@ -1,5 +1,4 @@
 import pygame
-import sys
 
 pygame.init()
 
@@ -16,24 +15,29 @@ pygame.display.set_caption("Diep.io 2.0")
 PLAYER_WIDTH, PLAYER_HEIGHT = 40, 40
 player = pygame.rect.Rect(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, PLAYER_WIDTH, PLAYER_HEIGHT)
 
-while True:
+run = True
+
+while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_a:
-                player.x -= 10
-            if event.key == pygame.K_d:
-                player.x += 10 
-            if event.key == pygame.K_w:
-                player.y -= 10
-            if event.key == pygame.K_s:
-                player.y += 10   
+            run = False
+            
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_a]:
+        player.x -= 1
+    if keys[pygame.K_d]:
+        player.x += 1 
+    if keys[pygame.K_w]:
+        player.y -= 1
+    if keys[pygame.K_s]:
+        player.y += 1   
 
     screen.fill(BLACK)     
 
     pygame.draw.rect(screen, WHITE, player)
     
     pygame.display.flip()
+
+pygame.quit()
     
