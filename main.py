@@ -33,7 +33,9 @@ class Game:
                     self.player.bullets.remove(bullet)
                     orb.health -= bullet.damage
                     if orb.health <= 0:
+                        self.player.add_xp(orb.xp_value)
                         self.orbs.remove(orb)
+                        self.orbs.append(SmallOrb())
                         break
     
     def draw(self):

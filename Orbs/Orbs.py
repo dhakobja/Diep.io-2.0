@@ -35,4 +35,4 @@ class Orb:
     
 class SmallOrb(Orb):
     def __init__(self):
-        super().__init__(radius=20, xp_value=10, health=100)
+        super().__init__(radius=20, xp_value=10, health=20)
