@@ -1,5 +1,7 @@
 import pygame
+
 from Players.player import Player
+from Orbs.Orbs import SmallOrb
 
 def main():
     pygame.init()
@@ -20,6 +22,9 @@ def main():
     # Initialize player
     player = Player("Player 1", 1, [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2])
 
+    # Initialize orbs
+    orbs = [SmallOrb([400, 300])]
+
     # Game loop
     run = True
     while run:
@@ -30,13 +35,20 @@ def main():
         # Process keys
         keys = pygame.key.get_pressed()
         player.move(keys)
-        current_time = pygame.time.get_ticks()  # Get current time for shooting management
-        player.shooting(keys, current_time)  # Pass current time to shooting
+        player.shooting(keys)
 
         # Draw everything
         screen.fill(BLACK)
         player.draw(screen)
         player.update_bullets(screen)
+        
+        for orb in orbs[:]:
+            orb.draw(screen)
+            for bullet in player.bullets[:]:
+                if orb.collide_with_bullet(bullet):
+                    player.bullets.remove(bullet)
+                    orbs.remove(orb)
+                    break
 
         # Update the display
         pygame.display.flip()

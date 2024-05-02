@@ -7,10 +7,10 @@ class Player:
         self.level = level
         self.width = 40
         self.height = 40
-        self.speed = 10
+        self.speed = 5
         self.position = position
         self.bullets = []
-        self.fire_rate = 100
+        self.fire_rate = 200
         self.last_shot_time = 0
     
     def move(self, keys):
@@ -34,7 +34,7 @@ class Player:
         }
         for key, direction in directions.items():
             if keys[key] and current_time - self.last_shot_time > self.fire_rate:
-                new_bullet = Bullet(position=self.position.copy(), direction=direction)
+                new_bullet = Bullet(position=[self.position[0] + self.width // 2, self.position[1] + self.height //2], direction=direction)
                 self.bullets.append(new_bullet)
                 self.last_shot_time = current_time
 
