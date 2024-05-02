@@ -16,26 +16,18 @@ class Player:
         self.last_shot_time = 0
     
     def move(self, keys, screen):
+        # Calculate potential new positions
+        dx = self.speed if keys[pygame.K_d] else -self.speed if keys[pygame.K_a] else 0
+        dy = self.speed if keys[pygame.K_s] else -self.speed if keys[pygame.K_w] else 0
+        
         screen_width = screen.width
         screen_height = screen.height
 
-        if keys[pygame.K_a]:
-            new_x = max(0, self.position[0] - self.speed)  # Prevent moving off the left edge
-        else:
-            new_x = self.position[0]
+        # Apply movement while ensuring the player does not move out of bounds
+        new_x = min(max(self.position[0] + dx, 0), screen_width - self.width)
+        new_y = min(max(self.position[1] + dy, 0), screen_height - self.height)
 
-        if keys[pygame.K_d]:
-            new_x = min(screen_width - self.width, self.position[0] + self.speed)  # Prevent moving off the right edge
-
-        if keys[pygame.K_w]:
-            new_y = max(0, self.position[1] - self.speed)  # Prevent moving off the top edge
-        else:
-            new_y = self.position[1]
-
-        if keys[pygame.K_s]:
-            new_y = min(screen_height - self.height, self.position[1] + self.speed)  # Prevent moving off the bottom edge
-
-        # Update position
+        # Update the player's position
         self.position = [new_x, new_y]
 
     def shooting(self, keys):
