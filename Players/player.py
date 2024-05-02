@@ -15,15 +15,28 @@ class Player:
         self.fire_rate = 200
         self.last_shot_time = 0
     
-    def move(self, keys):
+    def move(self, keys, screen):
+        screen_width = screen.width
+        screen_height = screen.height
+
         if keys[pygame.K_a]:
-            self.position[0] -= self.speed
+            new_x = max(0, self.position[0] - self.speed)  # Prevent moving off the left edge
+        else:
+            new_x = self.position[0]
+
         if keys[pygame.K_d]:
-            self.position[0] += self.speed
+            new_x = min(screen_width - self.width, self.position[0] + self.speed)  # Prevent moving off the right edge
+
         if keys[pygame.K_w]:
-            self.position[1] -= self.speed
+            new_y = max(0, self.position[1] - self.speed)  # Prevent moving off the top edge
+        else:
+            new_y = self.position[1]
+
         if keys[pygame.K_s]:
-            self.position[1] += self.speed
+            new_y = min(screen_height - self.height, self.position[1] + self.speed)  # Prevent moving off the bottom edge
+
+        # Update position
+        self.position = [new_x, new_y]
 
     def shooting(self, keys):
         current_time = pygame.time.get_ticks()

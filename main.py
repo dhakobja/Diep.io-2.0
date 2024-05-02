@@ -23,7 +23,7 @@ class Game:
 
     def update(self):
         keys = pygame.key.get_pressed()
-        self.player.move(keys)
+        self.player.move(keys, self.screen)
         self.player.shooting(keys)
         self.update_orbs()
         self.camera.update()
