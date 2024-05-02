@@ -10,7 +10,7 @@ class Game:
         pygame.init()
         self.clock = pygame.time.Clock()
         self.FPS = 60
-        self.screen = Screen(800, 600).screen
+        self.screen = Screen(800, 600)
         self.player = Player("Player 1", 1, [400, 300])
         self.orbs = [SmallOrb() for _ in range(5)]
         self.camera = Camera(self.player, 800, 600)
@@ -41,12 +41,12 @@ class Game:
                         break
     
     def draw(self):
-        self.screen.fill((0, 0, 0))
-        self.player.draw(self.screen, self.camera)
-        self.player.update_bullets(self.screen, self.camera)
+        self.screen.clear_screen()
+        self.player.draw(self.screen.get_surface(), self.camera)
+        self.player.update_bullets(self.screen.get_surface(), self.camera)
         for orb in self.orbs:
-            orb.draw(self.screen, self.camera.apply(orb.position))
-        pygame.display.flip()
+            orb.draw(self.screen.get_surface(), self.camera.apply(orb.position))
+        self.screen.update_display()
     
     def run_game(self):
         while self.run:
