@@ -26,5 +26,5 @@ class Bullet:
             return True  # Bullet should be deleted
         return False  # Bullet is still active
     
-    def draw(self, screen):
-        pygame.draw.circle(screen, (255, 255, 255), self.position, self.radius)
+    def draw(self, screen, position):
+        pygame.draw.circle(screen, (255, 255, 255), position, self.radius)

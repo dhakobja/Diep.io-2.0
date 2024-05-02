@@ -1,18 +1,19 @@
-from collections.abc import Iterable
 import pygame
 
+from Screen.screen import Screen
 from Players.player import Player
-from Orbs.Orbs import SmallOrb
+from Orbs.orbs import SmallOrb
+from Camera.camera import Camera
 
 class Game:
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((800, 600))
-        pygame.display.set_caption("Diep.io 2.0")
         self.clock = pygame.time.Clock()
         self.FPS = 60
+        self.screen = Screen(800, 600).screen
         self.player = Player("Player 1", 1, [400, 300])
         self.orbs = [SmallOrb() for _ in range(5)]
+        self.camera = Camera(self.player, 800, 600)
         self.run = True
 
     def handle_events(self):
@@ -25,6 +26,7 @@ class Game:
         self.player.move(keys)
         self.player.shooting(keys)
         self.update_orbs()
+        self.camera.update()
     
     def update_orbs(self):
         for orb in self.orbs[:]:
@@ -40,10 +42,10 @@ class Game:
     
     def draw(self):
         self.screen.fill((0, 0, 0))
-        self.player.draw(self.screen)
-        self.player.update_bullets(self.screen)
+        self.player.draw(self.screen, self.camera)
+        self.player.update_bullets(self.screen, self.camera)
         for orb in self.orbs:
-            orb.draw(self.screen)
+            orb.draw(self.screen, self.camera.apply(orb.position))
         pygame.display.flip()
     
     def run_game(self):

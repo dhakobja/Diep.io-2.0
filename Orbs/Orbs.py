@@ -10,15 +10,15 @@ class Orb:
 
         self.position = [random.randint(0, 800), random.randint(0, 600)]  # Random position on the screen
     
-    def draw(self, screen):
+    def draw(self, screen, position):
         # Draw the orb itself
-        pygame.draw.circle(screen, (255, 255, 255), self.position, self.radius)
+        pygame.draw.circle(screen, (255, 255, 255), position, self.radius)
         
         # Draw the health bar
         health_bar_length = 40  # Length of the health bar in pixels
         health_bar_height = 5   # Height of the health bar
-        health_bar_x = self.position[0] - health_bar_length // 2
-        health_bar_y = self.position[1] - self.radius - 10  # Offset by 10 pixels above the orb
+        health_bar_x = position[0] - health_bar_length // 2
+        health_bar_y = position[1] - self.radius - 10  # Offset by 10 pixels above the orb
         
         if self.health < self.max_health:
             # Background of the health bar (red)
