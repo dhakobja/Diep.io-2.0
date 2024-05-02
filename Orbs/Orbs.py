@@ -1,12 +1,14 @@
 import pygame
+import random
 
 class Orb:
-    def __init__(self, position, radius, xp_value, health):
-        self.position = position
+    def __init__(self, radius, xp_value, health):
         self.radius = radius
         self.xp_value = xp_value
         self.health = health
         self.max_health = health # Store the max health to draw the orb health bar
+
+        self.position = [random.randint(0, 800), random.randint(0, 600)]  # Random position on the screen
     
     def draw(self, screen):
         # Draw the orb itself
@@ -32,5 +34,5 @@ class Orb:
         return distance < self.radius
     
 class SmallOrb(Orb):
-    def __init__(self, position):
-        super().__init__(position, radius=20, xp_value=10, health=100)
+    def __init__(self):
+        super().__init__(radius=20, xp_value=10, health=100)

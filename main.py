@@ -1,62 +1,60 @@
+from collections.abc import Iterable
 import pygame
 
 from Players.player import Player
 from Orbs.Orbs import SmallOrb
 
-def main():
-    pygame.init()
+class Game:
+    def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((800, 600))
+        pygame.display.set_caption("Diep.io 2.0")
+        self.clock = pygame.time.Clock()
+        self.FPS = 60
+        self.player = Player("Player 1", 1, [400, 300])
+        self.orbs = [SmallOrb() for _ in range(5)]
+        self.run = True
 
-    # Colors
-    BLACK = (0, 0, 0)
-    WHITE = (255, 255, 255)
-
-    # Screen
-    SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption("Diep.io 2.0")
-
-    # Clock to set and track FPS
-    clock = pygame.time.Clock()
-    FPS = 60
-
-    # Initialize player
-    player = Player("Player 1", 1, [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2])
-
-    # Initialize orbs
-    orbs = [SmallOrb([400, 300])]
-
-    # Game loop
-    run = True
-    while run:
+    def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
-        
-        # Process keys
-        keys = pygame.key.get_pressed()
-        player.move(keys)
-        player.shooting(keys)
+                self.run = False
 
-        # Draw everything
-        screen.fill(BLACK)
-        player.draw(screen)
-        player.update_bullets(screen)
-        
-        for orb in orbs[:]:
-            orb.draw(screen)
-            for bullet in player.bullets[:]:
+    def update(self):
+        keys = pygame.key.get_pressed()
+        self.player.move(keys)
+        self.player.shooting(keys)
+        self.update_orbs()
+    
+    def update_orbs(self):
+        for orb in self.orbs[:]:
+            for bullet in self.player.bullets[:]:
                 if orb.collide_with_bullet(bullet):
-                    player.bullets.remove(bullet)
+                    self.player.bullets.remove(bullet)
                     orb.health -= bullet.damage
                     if orb.health <= 0:
-                        orbs.remove(orb)
+                        self.orbs.remove(orb)
                         break
-
-        # Update the display
+    
+    def draw(self):
+        self.screen.fill((0, 0, 0))
+        self.player.draw(self.screen)
+        self.player.update_bullets(self.screen)
+        for orb in self.orbs:
+            orb.draw(self.screen)
         pygame.display.flip()
-        clock.tick(FPS)
+    
+    def run_game(self):
+        while self.run:
+            self.handle_events()
+            self.update()
+            self.draw()
+            self.clock.tick(self.FPS)
+        pygame.quit()
 
-    pygame.quit()
+def main():
+    game = Game()
+    game.run_game()
 
 if __name__ == "__main__":
     main()
