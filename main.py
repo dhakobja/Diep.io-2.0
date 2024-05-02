@@ -47,8 +47,10 @@ def main():
             for bullet in player.bullets[:]:
                 if orb.collide_with_bullet(bullet):
                     player.bullets.remove(bullet)
-                    orbs.remove(orb)
-                    break
+                    orb.health -= bullet.damage
+                    if orb.health <= 0:
+                        orbs.remove(orb)
+                        break
 
         # Update the display
         pygame.display.flip()

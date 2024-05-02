@@ -7,6 +7,7 @@ class Bullet:
         self.radius = 10
         self.direction = direction
         self.velocity = 10
+        self.damage = 10
         self.range = 500
 
     def update(self):
