@@ -18,12 +18,13 @@ class Orb:
         health_bar_x = self.position[0] - health_bar_length // 2
         health_bar_y = self.position[1] - self.radius - 10  # Offset by 10 pixels above the orb
         
-        # Background of the health bar (red)
-        pygame.draw.rect(screen, (255, 0, 0), (health_bar_x, health_bar_y, health_bar_length, health_bar_height))
+        if self.health < self.max_health:
+            # Background of the health bar (red)
+            pygame.draw.rect(screen, (255, 0, 0), (health_bar_x, health_bar_y, health_bar_length, health_bar_height))
         
-        # Current health (green)
-        current_health_length = (self.health / self.max_health) * health_bar_length
-        pygame.draw.rect(screen, (0, 255, 0), (health_bar_x, health_bar_y, current_health_length, health_bar_height))
+            # Current health (green)
+            current_health_length = (self.health / self.max_health) * health_bar_length
+            pygame.draw.rect(screen, (0, 255, 0), (health_bar_x, health_bar_y, current_health_length, health_bar_height))
 
     def collide_with_bullet(self, bullet):
         # Check the distance between the center of the orb and the bullet position
