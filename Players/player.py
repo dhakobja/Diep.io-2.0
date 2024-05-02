@@ -67,12 +67,12 @@ class Player:
         # Draw the xp Bar    
         xp_bar_length = screen.get_width()
         xp_bar_height = 5
-        xp_bar_x = self.position[0] + 100
-        xp_bar_y = self.position[1] + 100
+        xp_bar_x = adjusted_position[0] - screen.get_width() // 2
+        xp_bar_y = adjusted_position[1] + screen.get_height() // 2 - 10
 
         # Background of the xp bar (red)
-        pygame.draw.rect(screen, (255, 0, 0), (adjusted_position[0] - screen.get_width() // 2, adjusted_position[1] + screen.get_height() // 2 - 10, xp_bar_length, xp_bar_height))
+        pygame.draw.rect(screen, (255, 0, 0), (xp_bar_x, xp_bar_y, xp_bar_length, xp_bar_height))
     
         # Current xp (green)
         current_xp_length = (self.xp / self.max_xp) * xp_bar_length
-        pygame.draw.rect(screen, (0, 255, 0), (adjusted_position[0] - screen.get_width() // 2, adjusted_position[1] + screen.get_height() // 2 - 10, current_xp_length, xp_bar_height))
+        pygame.draw.rect(screen, (0, 255, 0), (xp_bar_x, xp_bar_y, current_xp_length, xp_bar_height))

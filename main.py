@@ -10,10 +10,10 @@ class Game:
         pygame.init()
         self.clock = pygame.time.Clock()
         self.FPS = 60
-        self.screen = Screen(800, 600)
+        self.screen = Screen(1000, 800)
         self.player = Player("Player 1", 1, [400, 300])
         self.orbs = [SmallOrb() for _ in range(5)]
-        self.camera = Camera(self.player, 800, 600)
+        self.camera = Camera(self.player, self.screen.width, self.screen.height)
         self.run = True
 
     def handle_events(self):
