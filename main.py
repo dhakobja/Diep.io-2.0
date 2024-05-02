@@ -1,87 +1,48 @@
 import pygame
-
-pygame.init()
-
-# Colors
-BLACK = (0,0,0)
-WHITE = (255,255,255)
-
-# Screen
-SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Diep.io 2.0")
-
-# Player
-PLAYER_WIDTH, PLAYER_HEIGHT = 40, 40
-player = pygame.rect.Rect(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, PLAYER_WIDTH, PLAYER_HEIGHT)
-
-# Bullet
-bullets = []
-
-# Clock to set and track FPS
-clock = pygame.time.Clock()
-FPS = 60
-
-run = True
-
-def shooting(player, keys):
-    if keys[pygame.K_UP]:
-        if len(bullets) < 5:
-            bullets.append({
-                "position": [player.centerx, player.top],
-                "original_y": player.top,
-                "radius": 10,
-                "direction": "up", 
-                "bullet_velocity": 10,
-                "bullet_range": 200})
-
-def update_bullets():
-    for bullet in bullets:
-        if bullet["direction"] == "up":
-            # Calculate the new position
-            new_y = bullet["position"][1] - bullet["bullet_velocity"]
-
-            if abs(new_y - bullet["original_y"]) > bullet["bullet_range"]:
-                bullets.remove(bullet)
-            else:
-                bullet["position"][1] = new_y
-
-def draw_bullets():
-    for bullet in bullets:
-        pygame.draw.circle(screen, WHITE, bullet["position"], bullet["radius"])
+from Players.player import Player
 
 def main():
-    global run
+    pygame.init()
 
+    # Colors
+    BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
+
+    # Screen
+    SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Diep.io 2.0")
+
+    # Clock to set and track FPS
+    clock = pygame.time.Clock()
+    FPS = 60
+
+    # Initialize player
+    player = Player("Player 1", 1, [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2])
+
+    # Game loop
+    run = True
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                
+        
+        # Process keys
         keys = pygame.key.get_pressed()
+        player.move(keys)
+        current_time = pygame.time.get_ticks()  # Get current time for shooting management
+        player.shooting(keys, current_time)  # Pass current time to shooting
 
-        if keys[pygame.K_a]:
-            player.x -= 10
-        if keys[pygame.K_d]:
-            player.x += 10 
-        if keys[pygame.K_w]:
-            player.y -= 10
-        if keys[pygame.K_s]:
-            player.y += 10   
+        # Draw everything
+        screen.fill(BLACK)
+        player.draw(screen)
+        player.update_bullets(screen)
 
-        screen.fill(BLACK)     
-
-        pygame.draw.rect(screen, WHITE, player)
-        shooting(player, keys)
-        update_bullets()
-        draw_bullets()
-
+        # Update the display
         pygame.display.flip()
-
         clock.tick(FPS)
 
     pygame.quit()
-
 
 if __name__ == "__main__":
     main()
