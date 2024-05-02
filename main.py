@@ -10,10 +10,12 @@ class Game:
         pygame.init()
         self.clock = pygame.time.Clock()
         self.FPS = 60
-        self.screen = Screen(1000, 800)
+        self.screen = Screen(800, 600)
+        self.world_width = 1600
+        self.world_height = 1200
         self.player = Player("Player 1", 1, [400, 300])
-        self.orbs = [SmallOrb() for _ in range(5)]
-        self.camera = Camera(self.player, self.screen.width, self.screen.height)
+        self.orbs = [SmallOrb() for _ in range(30)]
+        self.camera = Camera(self.player, self.screen.width, self.screen.height, self.world_width, self.world_height)
         self.run = True
 
     def handle_events(self):
@@ -23,7 +25,7 @@ class Game:
 
     def update(self):
         keys = pygame.key.get_pressed()
-        self.player.move(keys, self.screen)
+        self.player.move(keys, self.screen, self.world_width, self.world_height)
         self.player.shooting(keys)
         self.update_orbs()
         self.camera.update()

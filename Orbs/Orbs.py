@@ -8,7 +8,7 @@ class Orb:
         self.health = health
         self.max_health = health # Store the max health to draw the orb health bar
 
-        self.position = [random.randint(0, 800), random.randint(0, 600)]  # Random position on the screen
+        self.position = [random.randint(0, 1600), random.randint(0, 1200)]  # Random position on the screen
     
     def draw(self, screen, position):
         # Draw the orb itself

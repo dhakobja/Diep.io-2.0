@@ -15,17 +15,14 @@ class Player:
         self.fire_rate = 200
         self.last_shot_time = 0
     
-    def move(self, keys, screen):
+    def move(self, keys, screen, world_width, world_height):
         # Calculate potential new positions
         dx = self.speed if keys[pygame.K_d] else -self.speed if keys[pygame.K_a] else 0
         dy = self.speed if keys[pygame.K_s] else -self.speed if keys[pygame.K_w] else 0
-        
-        screen_width = screen.width
-        screen_height = screen.height
 
-        # Apply movement while ensuring the player does not move out of bounds
-        new_x = min(max(self.position[0] + dx, 0), screen_width - self.width)
-        new_y = min(max(self.position[1] + dy, 0), screen_height - self.height)
+        # Apply new position with boundary constraints of the game world
+        new_x = max(0, min(world_width - self.width, self.position[0] + dx))
+        new_y = max(0, min(world_height - self.height, self.position[1] + dy))
 
         # Update the player's position
         self.position = [new_x, new_y]
@@ -72,12 +69,15 @@ class Player:
         # Draw the xp Bar    
         xp_bar_length = screen.get_width()
         xp_bar_height = 5
-        xp_bar_x = adjusted_position[0] - screen.get_width() // 2
-        xp_bar_y = adjusted_position[1] + screen.get_height() // 2 - 10
+        xp_bar_x = 0
+        xp_bar_y = screen.get_height() - xp_bar_height 
 
         # Background of the xp bar (red)
         pygame.draw.rect(screen, (255, 0, 0), (xp_bar_x, xp_bar_y, xp_bar_length, xp_bar_height))
     
-        # Current xp (green)
-        current_xp_length = (self.xp / self.max_xp) * xp_bar_length
+        # Current XP (green)
+        if self.max_xp > 0:  # To avoid division by zero
+            current_xp_length = (self.xp / self.max_xp) * xp_bar_length
+        else:
+            current_xp_length = 0
         pygame.draw.rect(screen, (0, 255, 0), (xp_bar_x, xp_bar_y, current_xp_length, xp_bar_height))
