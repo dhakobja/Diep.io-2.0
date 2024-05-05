@@ -41,13 +41,15 @@ class Player:
 
     def add_xp(self, xp_value):
         self.xp += xp_value
-        if self.xp >= 100:
+        if self.xp >= self.max_xp:
             self.update_level()
     
     def update_level(self):
-        remaining_xp = self.xp % 100
-        self.level += self.xp // 100
+        remaining_xp = self.xp % self.max_xp
+        self.level += int(self.xp // self.max_xp)
         self.xp = 0 + remaining_xp
+        new_max_xp = self.max_xp * 1.2
+        self.max_xp = int(new_max_xp)
 
     def draw(self, screen, camera):
         # Draw the player, but apply the camera offset first
@@ -74,6 +76,11 @@ class Player:
         else:
             current_xp_length = 0
         pygame.draw.rect(screen, (0, 255, 0), (xp_bar_x, xp_bar_y, current_xp_length, xp_bar_height))
+
+        # Draw the current player_s xp and max_xp
+        xp_font = pygame.font.Font(None, 24)
+        xp_text = xp_font.render(f"XP: {self.xp}/{self.max_xp}", True, (255, 255, 255))
+        screen.blit(xp_text, (xp_bar_x + 10, xp_bar_y - 20))
 
 class StandardClass(Player):
     def __init__(self, name, world_width=2400, world_height=1800):

@@ -54,6 +54,7 @@ class GameClient(ConnectionListener):
             self.players[player_id].position = player_data['position']
             self.players[player_id].level = player_data['level']
             self.players[player_id].xp = player_data['xp']
+            self.players[player_id].max_xp = player_data['max_xp']
 
             # If the updated player is the main player this client controls, update the camera
             if self.player and player_id == self.player.name:

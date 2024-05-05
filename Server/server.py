@@ -73,6 +73,7 @@ class GameServer(Server):
                 'position': player.position,
                 'level': player.level,
                 'xp': player.xp,
+                'max_xp': player.max_xp,
             })
         self.SendToAll({"action": "update_players", "players": player_states})
     
