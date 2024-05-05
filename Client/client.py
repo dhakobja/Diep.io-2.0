@@ -11,7 +11,7 @@ sys.path.insert(0, project_root)
 from Screen.screen import Screen
 from Camera.camera import Camera
 from Players.player import StandardClass
-from Orbs.orbs import SmallOrb
+from Orbs.orbs import SmallOrb, MediumOrb, LargeOrb
 from Bullets.bullets import Bullet
 
 class GameClient(ConnectionListener):
@@ -71,8 +71,15 @@ class GameClient(ConnectionListener):
                 ]
         
     def Network_initialize_orbs(self, data):
-        # Clear existing orbs and reinitialize
-        self.orbs = [SmallOrb(position=orb['position'], health=orb['health']) for orb in data['orbs']]
+        self.orbs = []
+        for orb_data in data['orbs']:
+            if orb_data['type'] == 'SmallOrb':
+                orb = SmallOrb(position=orb_data['position'], health=orb_data['health'])
+            elif orb_data['type'] == 'MediumOrb':
+                orb = MediumOrb(position=orb_data['position'], health=orb_data['health'])
+            elif orb_data['type'] == 'LargeOrb':
+                orb = LargeOrb(position=orb_data['position'], health=orb_data['health'])
+            self.orbs.append(orb)
     
     def Network_remove_orbs(self, data):
         self.orbs = [orb for orb in self.orbs if orb['id'] != data['id']]

@@ -4,6 +4,7 @@ from PodSixNet.Channel import Channel
 from PodSixNet.Server import Server
 
 import uuid
+import random
 
 import os
 import sys
@@ -12,7 +13,7 @@ import sys
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, project_root)
 
-from Orbs.orbs import SmallOrb
+from Orbs.orbs import SmallOrb, MediumOrb, LargeOrb
 from Players.player import StandardClass
 
 class ClientChannel(Channel):
@@ -51,7 +52,7 @@ class GameServer(Server):
         self.world_width = 2400
         self.world_height = 1800
         self.players = {}
-        self.orbs = [SmallOrb() for _ in range(30)]
+        self.orbs = []
         self.player_id_counter = 0
 
     def Connected(self, channel, addr):
@@ -99,11 +100,22 @@ class GameServer(Server):
 
         self.broadcast_bullet_states()
 
+    def spawn_orbs(self):
+        if len(self.orbs) < 30:
+            orb_type = random.choice([SmallOrb, MediumOrb, LargeOrb])
+            if orb_type == SmallOrb:
+                self.orbs.append(SmallOrb())
+            elif orb_type == MediumOrb:
+                self.orbs.append(MediumOrb())
+            elif orb_type == LargeOrb:
+                self.orbs.append(LargeOrb())
+
     def send_orbs_to_client(self):
         orb_data = [{
             "id": id(orb),
             "position": orb.position,
             "health": orb.health,
+            "type": type(orb).__name__
         } for orb in self.orbs]
         self.SendToAll({"action": "initialize_orbs", "orbs": orb_data})
 
@@ -151,6 +163,7 @@ if __name__ == "__main__":
     game_server = GameServer()
     while True:
         game_server.Pump()
+        game_server.spawn_orbs()
         game_server.check_collisions_player_with_orb()
         game_server.check_collisions_bullet_with_orb()
         game_server.update_bullets()

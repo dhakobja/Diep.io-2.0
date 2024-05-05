@@ -51,4 +51,12 @@ class Orb:
     
 class SmallOrb(Orb):
     def __init__(self, position=None, health=None):
-        super().__init__(radius=20, xp_value=60, health=20, position=position)
+        super().__init__(radius=10, xp_value=60, health=20, position=position)
+
+class MediumOrb(Orb):
+    def __init__(self, position=None, health=None):
+        super().__init__(radius=20, xp_value=120, health=50, position=position)
+
+class LargeOrb(Orb):
+    def __init__(self, position=None, health=None):
+        super().__init__(radius=30, xp_value=160, health=100, position=position)
