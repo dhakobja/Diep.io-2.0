@@ -107,7 +107,7 @@ class GameServer(Server):
         self.broadcast_bullet_states()
 
     def spawn_orbs(self):
-        if len(self.orbs) < 1:
+        if len(self.orbs) < 30:
             orb_type = random.choice([SmallOrb, MediumOrb, LargeOrb])
             if orb_type == SmallOrb:
                 self.orbs.append(SmallOrb())
@@ -142,7 +142,10 @@ class GameServer(Server):
                             self.spawn_orbs()
 
                         # Remove the bullet that hit the orb
-                        player.bullets.remove(bullet)
+                        try:
+                            player.bullets.remove(bullet)
+                        except:
+                            pass
                         
     def SendToAll(self, data):
         # Broadcast data to all connected clients
