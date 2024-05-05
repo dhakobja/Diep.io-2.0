@@ -126,6 +126,8 @@ class GameServer(Server):
                     # Remove the orb that was collected and send a message to all clients
                     self.orbs.remove(orb)
                     self.SendToAll({"action": "remove_orb", "id": id(orb)})
+                    # Damage the player that touched the orb
+                    player.health -= orb.contact_damage
                     # Add a new orb to the game 
                     self.spawn_orbs()
     
@@ -168,6 +170,11 @@ class GameServer(Server):
                                 player.bullets.remove(bullet)
                             except:
                                 pass
+    
+    def check_player_health(self):
+        for player in self.players.values():
+            if player.health <= 0:
+                player.respawn(self.world_width, self.world_height)
                         
     def SendToAll(self, data):
         # Broadcast data to all connected clients
@@ -188,6 +195,7 @@ if __name__ == "__main__":
         game_server.check_collisions_bullet_with_orb()
         game_server.check_collisions_player_with_player()
         game_server.check_collisions_bullet_with_player()
+        game_server.check_player_health()
         game_server.update_bullets()
         game_server.broadcast_bullet_states()
         game_server.broadcast_player_states()

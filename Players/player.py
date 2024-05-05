@@ -46,11 +46,18 @@ class Player:
         if self.xp >= self.max_xp:
             self.update_level()
     
+    def calculate_max_xp_for_level(self, level):
+        # Initial max_xp at level 1 is 100
+        max_xp = 100
+        for i in range(1, level):
+            max_xp *= 1.2
+        return int(max_xp)
+    
     def update_level(self):
         remaining_xp = self.xp % self.max_xp
         self.level += int(self.xp // self.max_xp)
         self.xp = 0 + remaining_xp
-        self.max_xp = int(self.max_xp * 1.2)
+        self.max_xp = self.calculate_max_xp_for_level(self.level)
 
     def collide_with_player(self, player):
         # Check if the player is colliding with another player
@@ -114,6 +121,14 @@ class Player:
         xp_font = pygame.font.Font(None, 24)
         xp_text = xp_font.render(f"XP: {self.xp}/{self.max_xp}", True, (255, 255, 255))
         screen.blit(xp_text, (xp_bar_x + 10, xp_bar_y - 20))
+
+    def respawn(self, world_width, world_height):
+        # Apply penalties, such as reducing the level
+        self.level = max(1, self.level // 2)
+        self.xp = 0
+        self.health = 100  # Reset health
+        self.position = [random.randint(0, world_width), random.randint(0, world_height)]
+        self.max_xp = self.calculate_max_xp_for_level(self.level) # Calculate the max_xp based on the new level
 
 class StandardClass(Player):
     def __init__(self, name, world_width=2400, world_height=1800):
