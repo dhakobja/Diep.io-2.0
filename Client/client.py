@@ -46,6 +46,12 @@ class GameClient(ConnectionListener):
     
     def Network_update_players(self, data):
         for player_data in data['players']:
+            # Remove players that are no longer in the game
+            for player_id in self.players.copy():
+                if player_id not in [player['player_id'] for player in data['players']]:
+                    self.players.pop(player_id)
+
+            # Add players that are new to the game
             player_id = player_data['player_id']
             if player_id not in self.players:
                 self.players[player_id] = StandardClass(player_data['player_id'])
@@ -55,9 +61,12 @@ class GameClient(ConnectionListener):
             self.players[player_id].level = player_data['level']
             self.players[player_id].xp = player_data['xp']
             self.players[player_id].max_xp = player_data['max_xp']
+            self.players[player_id].health = player_data['health']
 
-            # If the updated player is the main player this client controls, update the camera
+
+            # If the updated player is the main player this client controls, update the player and camera
             if self.player and player_id == self.player.name:
+                self.player = self.players[player_id]  # Ensure player is correctly set
                 self.camera.target = self.players[player_id]  # Ensure camera's target is correctly set
                 self.camera.update()
     
@@ -135,7 +144,16 @@ class GameClient(ConnectionListener):
         # Draw the orbs
         for orb in self.orbs:
             orb.draw(self.screen.get_surface(), self.camera)
+        
+        # Draw the player's specific information
+        self.draw_player_specifics()
+
         self.screen.update_display()
+    
+    def draw_player_specifics(self):
+        # Draw the player's current and max XP
+        if self.player:
+            self.player.draw_player_specifics(self.screen.get_surface())
     
     def run_game(self):
         while self.run:

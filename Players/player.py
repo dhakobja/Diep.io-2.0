@@ -10,10 +10,12 @@ class Player:
         self.level = 1
         self.xp = 0
         self.max_xp = 100
+        self.health = 100
         self.speed = 5
         self.bullets = []
         self.fire_rate = 200
         self.last_shot_time = 0
+        self.collision_damage = 10
     
     def move(self, keys, world_width, world_height):
         # Calculate potential new positions
@@ -48,19 +50,43 @@ class Player:
         remaining_xp = self.xp % self.max_xp
         self.level += int(self.xp // self.max_xp)
         self.xp = 0 + remaining_xp
-        new_max_xp = self.max_xp * 1.2
-        self.max_xp = int(new_max_xp)
+        self.max_xp = int(self.max_xp * 1.2)
+
+    def collide_with_player(self, player):
+        # Check if the player is colliding with another player
+        return (self.position[0] < player.position[0] + player.width and
+                self.position[0] + self.width > player.position[0] and
+                self.position[1] < player.position[1] + player.height and
+                self.position[1] + self.height > player.position[1])
 
     def draw(self, screen, camera):
         # Draw the player, but apply the camera offset first
         adjusted_position = camera.apply(self.position)
         pygame.draw.rect(screen, (255, 255, 255), [adjusted_position[0], adjusted_position[1], self.width, self.height])
 
+        # Draw the health bar of the Player
+        health_bar_length = self.width
+        health_bar_height = 5
+        health_bar_x = adjusted_position[0]
+        health_bar_y = adjusted_position[1] + self.height + 5
+
+        # Background of the health bar (red)
+        pygame.draw.rect(screen, (255, 0, 0), (health_bar_x, health_bar_y, health_bar_length, health_bar_height))
+
+        # Current health (green)
+        if self.health > 0:
+            current_health_length = (self.health / 100) * health_bar_length
+        else:
+            current_health_length = 0
+
+        pygame.draw.rect(screen, (0, 255, 0), (health_bar_x, health_bar_y, current_health_length, health_bar_height))
+
         # Draw the player level
         font = pygame.font.Font(None, 24)
         level_text = font.render(f"Lvl: {self.level}",True, (255, 255, 255))
         screen.blit(level_text, (adjusted_position[0], adjusted_position[1] - 20))
-
+    
+    def draw_player_specifics(self, screen):
         # Draw the xp Bar    
         xp_bar_length = screen.get_width()
         xp_bar_height = 5
@@ -90,4 +116,4 @@ class StandardClass(Player):
 
 class Tank(StandardClass):
     def __init__():
-        super().__init__(width=100, height=100)
+        super().__init__(health=200)
