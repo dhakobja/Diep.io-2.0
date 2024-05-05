@@ -37,9 +37,17 @@ class Orb:
         return distance < self.radius
     
     def collide_with_player(self, player):
-        # Check the distance between the center of the orb and the player position
-        distance = pygame.math.Vector2(self.position).distance_to(pygame.math.Vector2(player.position))
-        return distance < self.radius + player.width
+        # Find the closest point on the rectangle to the center of the circle
+        closest_x = max(player.position[0], min(self.position[0], player.position[0] + player.width))
+        closest_y = max(player.position[1], min(self.position[1], player.position[1] + player.height))
+
+        # Calculate the distance between this closest point and the center of the circle
+        distance_x = self.position[0] - closest_x
+        distance_y = self.position[1] - closest_y
+
+        # If the distance is less than the radius, there's a collision
+        distance = (distance_x**2 + distance_y**2)**0.5
+        return distance < self.radius
     
 class SmallOrb(Orb):
     def __init__(self, position=None, health=None):
