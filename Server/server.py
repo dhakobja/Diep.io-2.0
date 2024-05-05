@@ -156,6 +156,18 @@ class GameServer(Server):
                     if player.collide_with_player(other_player):
                         player.health -= other_player.collision_damage
                         other_player.health -= player.collision_damage       
+    
+    def check_collisions_bullet_with_player(self):
+        for player in self.players.values():
+            for bullet in player.bullets[:]:
+                for other_player in self.players.values():
+                    if player != other_player:
+                        if other_player.collide_with_bullet(bullet):
+                            other_player.health -= bullet.damage
+                            try:
+                                player.bullets.remove(bullet)
+                            except:
+                                pass
                         
     def SendToAll(self, data):
         # Broadcast data to all connected clients
@@ -175,6 +187,7 @@ if __name__ == "__main__":
         game_server.check_collisions_player_with_orb()
         game_server.check_collisions_bullet_with_orb()
         game_server.check_collisions_player_with_player()
+        game_server.check_collisions_bullet_with_player()
         game_server.update_bullets()
         game_server.broadcast_bullet_states()
         game_server.broadcast_player_states()

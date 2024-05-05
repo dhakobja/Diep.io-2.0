@@ -58,6 +58,13 @@ class Player:
                 self.position[0] + self.width > player.position[0] and
                 self.position[1] < player.position[1] + player.height and
                 self.position[1] + self.height > player.position[1])
+    
+    def collide_with_bullet(self, bullet):
+        # Check if the player is colliding with a bullet
+        return (self.position[0] < bullet.position[0] + bullet.radius and
+                self.position[0] + self.width > bullet.position[0] and
+                self.position[1] < bullet.position[1] + bullet.radius and
+                self.position[1] + self.height > bullet.position[1])
 
     def draw(self, screen, camera):
         # Draw the player, but apply the camera offset first
