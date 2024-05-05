@@ -30,22 +30,14 @@ class Player:
     def shooting(self, keys):
         current_time = pygame.time.get_ticks()
 
-        directions = {
-            pygame.K_UP: "up",
-            pygame.K_DOWN: "down",
-            pygame.K_LEFT: "left",
-            pygame.K_RIGHT: "right"
-        }
-        for key, direction in directions.items():
-            if keys[key] and current_time - self.last_shot_time > self.fire_rate:
+        for direction in keys:
+            if keys[direction] and current_time - self.last_shot_time > self.fire_rate:
                 new_bullet = Bullet(position=[self.position[0] + self.width // 2, self.position[1] + self.height //2], direction=direction)
                 self.bullets.append(new_bullet)
                 self.last_shot_time = current_time
 
-    def update_bullets(self, screen, camera):
+    def update_bullets(self):
         self.bullets = [bullet for bullet in self.bullets if not bullet.update()]
-        for bullet in self.bullets:
-            bullet.draw(screen, camera.apply(bullet.position))
 
     def add_xp(self, xp_value):
         self.xp += xp_value

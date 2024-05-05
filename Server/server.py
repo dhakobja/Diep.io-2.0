@@ -37,6 +37,11 @@ class ClientChannel(Channel):
             dy = -player.speed if data['data']['up'] else player.speed if data['data']['down'] else 0
             player.position[0] = max(0, min(self._server.world_width - player.width, player.position[0] + dx))
             player.position[1] = max(0, min(self._server.world_height - player.height, player.position[1] + dy))
+        
+    def Network_shoot_bullet(self, data):
+        player = self._server.players.get(self.id)
+        if player:
+            player.shooting(data['data'])
 
 class GameServer(Server):
     channelClass = ClientChannel
@@ -69,9 +74,30 @@ class GameServer(Server):
                 'player_id': player_id,
                 'position': player.position,
                 'level': player.level,
-                'xp': player.xp
+                'xp': player.xp,
             })
         self.SendToAll({"action": "update_players", "players": player_states})
+    
+    def broadcast_bullet_states(self):
+        bullet_states = []
+        for player_id, player in self.players.items():
+            # Convert the bullets to a serializable format, so that we can send it to the client with the SendToAll method
+            # (doesn't support sending objects that are not serializable, like the Bullet class)
+            bullet_data = [{
+                'position': bullet.position,
+                'direction': bullet.direction
+            } for bullet in player.bullets]
+            bullet_states.append({
+                'player_id': player_id,
+                'bullet_data': bullet_data
+            })
+        self.SendToAll({"action": "update_bullets", "bullets": bullet_states})
+    
+    def update_bullets(self):
+        for player in self.players.values():
+            player.update_bullets()
+
+        self.broadcast_bullet_states()
 
     def send_orbs_to_client(self):
         orb_data = [{
@@ -108,5 +134,7 @@ if __name__ == "__main__":
     while True:
         game_server.Pump()
         game_server.check_collisions()
+        game_server.update_bullets()
+        game_server.broadcast_bullet_states()
         game_server.broadcast_player_states()
         pygame.time.wait(1000 // 60)  # Maintain a Loop at 60 FPS

@@ -12,6 +12,7 @@ from Screen.screen import Screen
 from Camera.camera import Camera
 from Players.player import StandardClass
 from Orbs.orbs import SmallOrb
+from Bullets.bullets import Bullet
 
 class GameClient(ConnectionListener):
     def __init__(self, host, port):
@@ -48,15 +49,27 @@ class GameClient(ConnectionListener):
             player_id = player_data['player_id']
             if player_id not in self.players:
                 self.players[player_id] = StandardClass(player_data['player_id'])
+
             # Update player properties
             self.players[player_id].position = player_data['position']
             self.players[player_id].level = player_data['level']
             self.players[player_id].xp = player_data['xp']
+
             # If the updated player is the main player this client controls, update the camera
             if self.player and player_id == self.player.name:
                 self.camera.target = self.players[player_id]  # Ensure camera's target is correctly set
                 self.camera.update()
     
+    def Network_update_bullets(self, data):
+        bullet_states = data['bullets']
+        for bullet_state in bullet_states:
+            player_id = bullet_state['player_id']
+            if player_id in self.players:
+                self.players[player_id].bullets = [
+                    Bullet(position=bullet['position'], direction=bullet['direction'])
+                    for bullet in bullet_state['bullet_data']
+                ]
+        
     def Network_initialize_orbs(self, data):
         # Clear existing orbs and reinitialize
         self.orbs = [SmallOrb(position=orb['position'], health=orb['health']) for orb in data['orbs']]
@@ -70,6 +83,7 @@ class GameClient(ConnectionListener):
                 self.run = False
         
         self.send_movement()
+        self.send_shoot_bullet()
 
     def send_movement(self):
         keys = pygame.key.get_pressed()
@@ -81,6 +95,17 @@ class GameClient(ConnectionListener):
         }
 
         self.Send({"action": "move_player", "data": movement_data})
+    
+    def send_shoot_bullet(self):
+        keys = pygame.key.get_pressed()
+        direction_data = {
+            'left': keys[pygame.K_LEFT],
+            'right': keys[pygame.K_RIGHT],
+            'up': keys[pygame.K_UP],
+            'down': keys[pygame.K_DOWN]
+        }
+
+        self.Send({"action": "shoot_bullet", "data": direction_data})
 
     def draw(self):
         if not self.camera:
@@ -89,6 +114,8 @@ class GameClient(ConnectionListener):
         # Draw the players
         for player in self.players.values():
             player.draw(self.screen.get_surface(), self.camera)
+            for bullet in player.bullets:
+                bullet.draw(self.screen.get_surface(), self.camera.apply(bullet.position))
         # Draw the orbs
         for orb in self.orbs:
             orb.draw(self.screen.get_surface(), self.camera)
