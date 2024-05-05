@@ -107,8 +107,8 @@ class GameServer(Server):
         } for orb in self.orbs]
         self.SendToAll({"action": "initialize_orbs", "orbs": orb_data})
 
-    def check_collisions(self):
-        for player_id, player in self.players.items():
+    def check_collisions_player_with_orb(self):
+        for player in self.players.values():
             for orb in self.orbs[:]:
                 if orb.collide_with_player(player):
                     player.add_xp(orb.xp_value)
@@ -118,6 +118,24 @@ class GameServer(Server):
                     # Add a new orb to the game and send the updated list to all clients
                     self.orbs.append(SmallOrb())
                     self.send_orbs_to_client()
+    
+    def check_collisions_bullet_with_orb(self):
+        for player in self.players.values():
+            for bullet in player.bullets[:]:
+                for orb in self.orbs[:]:
+                    if orb.collide_with_bullet(bullet):
+                        player.add_xp(orb.xp_value)
+                        # Remove the orb that was collected and send a message to all clients
+                        self.orbs.remove(orb)
+                        self.SendToAll({"action": "remove_orb", "id": id(orb)})
+                        # Add a new orb to the game and send the updated list to all clients
+                        self.orbs.append(SmallOrb())
+                        self.send_orbs_to_client()
+
+                        # Remove the bullet that hit the orb
+                        player.bullets.remove(bullet)
+                        break
+                        
 
     def SendToAll(self, data):
         # Broadcast data to all connected clients
@@ -133,7 +151,8 @@ if __name__ == "__main__":
     game_server = GameServer()
     while True:
         game_server.Pump()
-        game_server.check_collisions()
+        game_server.check_collisions_player_with_orb()
+        game_server.check_collisions_bullet_with_orb()
         game_server.update_bullets()
         game_server.broadcast_bullet_states()
         game_server.broadcast_player_states()
