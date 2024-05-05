@@ -1,8 +1,10 @@
 import pygame
 import random
+import uuid
 
 class Orb:
     def __init__(self, radius, xp_value, health, position=None):
+        self.id = str(uuid.uuid4())
         self.radius = radius
         self.xp_value = xp_value
         self.health = health
@@ -21,10 +23,10 @@ class Orb:
         pygame.draw.circle(screen, (255, 255, 255), adjusted_position, self.radius)
 
         # Draw the health bar
-        health_bar_length = 40
+        health_bar_length = self.radius * 2
         health_bar_height = 5
         health_bar_x = adjusted_position[0] - health_bar_length // 2
-        health_bar_y = adjusted_position[1] - self.radius - 10
+        health_bar_y = adjusted_position[1] - self.radius - 12
 
         if self.health < self.max_health:
             pygame.draw.rect(screen, (255, 0, 0), (health_bar_x, health_bar_y, health_bar_length, health_bar_height))

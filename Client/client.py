@@ -71,18 +71,24 @@ class GameClient(ConnectionListener):
                 ]
         
     def Network_initialize_orbs(self, data):
-        self.orbs = []
+        temp_orbs = {orb.id: orb for orb in self.orbs}  # Existing orbs by id
+        new_orbs = []
         for orb_data in data['orbs']:
-            if orb_data['type'] == 'SmallOrb':
-                orb = SmallOrb(position=orb_data['position'], health=orb_data['health'])
-            elif orb_data['type'] == 'MediumOrb':
-                orb = MediumOrb(position=orb_data['position'], health=orb_data['health'])
-            elif orb_data['type'] == 'LargeOrb':
-                orb = LargeOrb(position=orb_data['position'], health=orb_data['health'])
-            self.orbs.append(orb)
-    
-    def Network_remove_orbs(self, data):
-        self.orbs = [orb for orb in self.orbs if orb['id'] != data['id']]
+            orb = temp_orbs.get(orb_data['id'])
+            if orb:
+                orb.position = orb_data['position']
+                orb.health = orb_data['health']
+            else:
+                # Create new orb based on type
+                if orb_data['type'] == 'SmallOrb':
+                    orb = SmallOrb(position=orb_data['position'], health=orb_data['health'])
+                elif orb_data['type'] == 'MediumOrb':
+                    orb = MediumOrb(position=orb_data['position'], health=orb_data['health'])
+                elif orb_data['type'] == 'LargeOrb':
+                    orb = LargeOrb(position=orb_data['position'], health=orb_data['health'])
+                orb.id = orb_data['id']  # Make sure to assign the ID from the data
+            new_orbs.append(orb)
+        self.orbs = new_orbs
     
     def handle_events(self):
         for event in pygame.event.get():
@@ -118,11 +124,13 @@ class GameClient(ConnectionListener):
         if not self.camera:
             return
         self.screen.clear_screen()
+        
         # Draw the players
         for player in self.players.values():
             player.draw(self.screen.get_surface(), self.camera)
             for bullet in player.bullets:
                 bullet.draw(self.screen.get_surface(), self.camera.apply(bullet.position))
+
         # Draw the orbs
         for orb in self.orbs:
             orb.draw(self.screen.get_surface(), self.camera)
