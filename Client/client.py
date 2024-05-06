@@ -21,7 +21,7 @@ class GameClient(ConnectionListener):
 
         self.clock = pygame.time.Clock()
         self.FPS = 60
-        self.screen = Screen(800, 600)
+        self.screen = Screen(1200, 700)
         self.camera = None
         self.player = None
         self.players = {}

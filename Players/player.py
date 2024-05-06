@@ -7,14 +7,17 @@ class Player:
     def __init__(self):
         self.width = 40
         self.height = 40
+        self.image = pygame.Surface((self.width, self.height))
+        self.alpha = 255 # Fully opaque (visible)
         self.level = 1
+        self.bullets = []
+        self.last_shot_time = 0
         self.xp = 0
         self.max_xp = 100
+        self.upgrades_available = 0
         self.health = 100
         self.speed = 5
-        self.bullets = []
         self.fire_rate = 200
-        self.last_shot_time = 0
         self.collision_damage = 10
     
     def move(self, keys, world_width, world_height):
@@ -58,6 +61,30 @@ class Player:
         self.level += int(self.xp // self.max_xp)
         self.xp = 0 + remaining_xp
         self.max_xp = self.calculate_max_xp_for_level(self.level)
+    
+    def calculate_upgrades_available_and_draw(self, screen):
+        # Calculate the number of upgrades available based on the player's level
+        self.upgrades_available = self.level // 2
+
+        # Draw the upgrades available
+        if self.upgrades_available > 0:
+            upgrade_font = pygame.font.Font(None, 24)
+            upgrade_text = upgrade_font.render(f"Upgrades: {self.upgrades_available}", True, (255, 255, 255))
+            screen.blit(upgrade_text, (0, 0))
+
+            rect_width = 150
+            rect_height = 22
+            gap = 6 # Gap between the upgrades
+
+            for i, upgrade  in enumerate(["health", "collision_damage", "speed", "fire_rate"], 1):
+                y_pos = 20 * i + gap * i
+                upgrade_text = upgrade_font.render(f"{upgrade}", True, (255, 255, 255))
+                # Draw a rectangle for the upgrade
+                pygame.draw.rect(screen, (255, 255, 255), (0, y_pos, rect_width, rect_height), 2, 5)
+                # Center the text inside the rectangle
+                text_x = (rect_width - upgrade_text.get_width()) // 2
+                text_y = y_pos + (rect_height - upgrade_text.get_height()) // 2
+                screen.blit(upgrade_text, (text_x, text_y))
 
     def collide_with_player(self, player):
         # Check if the player is colliding with another player
@@ -76,7 +103,9 @@ class Player:
     def draw(self, screen, camera):
         # Draw the player, but apply the camera offset first
         adjusted_position = camera.apply(self.position)
-        pygame.draw.rect(screen, (255, 255, 255), [adjusted_position[0], adjusted_position[1], self.width, self.height])
+        #pygame.draw.rect(screen, (255, 255, 255), [adjusted_position[0], adjusted_position[1], self.width, self.height])
+        self.image.fill((255, 255, 255))
+        screen.blit(self.image, (adjusted_position[0], adjusted_position[1]))
 
         # Draw the health bar of the Player
         health_bar_length = self.width
@@ -122,6 +151,9 @@ class Player:
         xp_text = xp_font.render(f"XP: {self.xp}/{self.max_xp}", True, (255, 255, 255))
         screen.blit(xp_text, (xp_bar_x + 10, xp_bar_y - 20))
 
+        # Draw the player's available upgrades
+        self.calculate_upgrades_available_and_draw(screen)
+
     def respawn(self, world_width, world_height):
         # Apply penalties, such as reducing the level
         self.level = max(1, self.level // 2)
@@ -129,7 +161,7 @@ class Player:
         self.health = 100  # Reset health
         self.position = [random.randint(0, world_width), random.randint(0, world_height)]
         self.max_xp = self.calculate_max_xp_for_level(self.level) # Calculate the max_xp based on the new level
-
+    
 class StandardClass(Player):
     def __init__(self, name, world_width=2400, world_height=1800):
         super().__init__()
