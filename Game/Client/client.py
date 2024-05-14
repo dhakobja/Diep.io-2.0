@@ -1,12 +1,6 @@
 import pygame
+from pygame.sprite import LayeredUpdates
 from PodSixNet.Connection import ConnectionListener, connection
-
-import os
-import sys
-
-# This is needed so that the file can import Screen and Camera from the main project directory
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.insert(0, project_root)
 
 from Screen.screen import Screen
 from Camera.camera import Camera
@@ -26,6 +20,7 @@ class GameClient(ConnectionListener):
         self.player = None
         self.players = {}
         self.orbs = []
+        self.group = LayeredUpdates()
         self.run = True
     
     def Loop(self):
@@ -33,10 +28,17 @@ class GameClient(ConnectionListener):
         self.Pump()
 
     def Network_initialize_player(self, data):
-        self.player = StandardClass(data["player_id"], self.screen.width, self.screen.height)
+        player_id = data["player_id"]
+        self.player = StandardClass(player_id, self.group)
         self.player.position = data["position"]
+
+        # Add the player to the players dictionary
+        if player_id not in self.players:
+            self.players[player_id] = self.player
+
         self.camera = Camera(self.player, self.screen.width, self.screen.height)
         self.camera.update()
+        print("Player initialized")
     
     def Network_connected(self, data):
         print("You are now connected to the server")
@@ -53,8 +55,6 @@ class GameClient(ConnectionListener):
 
             # Add players that are new to the game
             player_id = player_data['player_id']
-            if player_id not in self.players:
-                self.players[player_id] = StandardClass(player_data['player_id'])
 
             # Update player properties
             self.players[player_id].position = player_data['position']
@@ -62,7 +62,6 @@ class GameClient(ConnectionListener):
             self.players[player_id].xp = player_data['xp']
             self.players[player_id].max_xp = player_data['max_xp']
             self.players[player_id].health = player_data['health']
-
 
             # If the updated player is the main player this client controls, update the player and camera
             if self.player and player_id == self.player.name:
@@ -91,11 +90,11 @@ class GameClient(ConnectionListener):
             else:
                 # Create new orb based on type
                 if orb_data['type'] == 'SmallOrb':
-                    orb = SmallOrb(position=orb_data['position'], health=orb_data['health'])
+                    orb = SmallOrb(orb_data['position'], orb_data['health'], self.group)
                 elif orb_data['type'] == 'MediumOrb':
-                    orb = MediumOrb(position=orb_data['position'], health=orb_data['health'])
+                    orb = MediumOrb(orb_data['position'], orb_data['health'], self.group)
                 elif orb_data['type'] == 'LargeOrb':
-                    orb = LargeOrb(position=orb_data['position'], health=orb_data['health'])
+                    orb = LargeOrb(orb_data['position'], orb_data['health'], self.group)
                 orb.id = orb_data['id']  # Make sure to assign the ID from the data
             new_orbs.append(orb)
         self.orbs = new_orbs
@@ -136,10 +135,11 @@ class GameClient(ConnectionListener):
         self.screen.clear_screen()
         
         # Draw the players
-        for player in self.players.values():
-            player.draw(self.screen.get_surface(), self.camera)
-            for bullet in player.bullets:
-                bullet.draw(self.screen.get_surface(), self.camera.apply(bullet.position))
+        # for player in self.players.values():
+        #     player.draw(self.screen.get_surface(), self.camera)
+        #     for bullet in player.bullets:
+        #         bullet.draw(self.screen.get_surface(), self.camera.apply(bullet.position))
+        self.group.draw(self.screen.get_surface())
 
         # Draw the orbs
         for orb in self.orbs:

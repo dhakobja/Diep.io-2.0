@@ -1,9 +1,11 @@
 import pygame
+from pygame.sprite import Sprite
+
 import random
 import uuid
 
-class Orb:
-    def __init__(self, radius, xp_value, health, position=None):
+class Orb(Sprite):
+    def __init__(self, radius, xp_value, health, position=None, *groups):
         self.id = str(uuid.uuid4())
         self.radius = radius
         self.xp_value = xp_value
@@ -14,7 +16,11 @@ class Orb:
             self.position = position
         else:
             self.position = [random.randint(0, 1600), random.randint(0, 1200)]  # Random position on the screen
-    
+        
+        # Add the orb to the groups
+        self._layer = 3
+        super().__init__(*groups)
+
     def draw(self, screen, camera):
         # Apply camera transformation
         adjusted_position = camera.apply(self.position)
@@ -52,16 +58,19 @@ class Orb:
         return distance < self.radius
     
 class SmallOrb(Orb):
-    def __init__(self, position=None, health=None):
-        super().__init__(radius=10, xp_value=60, health=20, position=position)
+    def __init__(self, position=None, health=None, *groups):
+        super().__init__(10, 60, 20, position, *groups)
         self.contact_damage = 10
+        self.group = groups
 
 class MediumOrb(Orb):
-    def __init__(self, position=None, health=None):
-        super().__init__(radius=20, xp_value=120, health=50, position=position)
+    def __init__(self, position=None, health=None, *groups):
+        super().__init__(20, 120, 50, position, *groups)
         self.contact_damage = 25
+        self.group = groups
 
 class LargeOrb(Orb):
-    def __init__(self, position=None, health=None):
-        super().__init__(radius=30, xp_value=160, health=100, position=position)
+    def __init__(self, position=None, health=None, *groups):
+        super().__init__(30, 160, 100, position, *groups)
         self.contact_damage = 50
+        self.group = groups

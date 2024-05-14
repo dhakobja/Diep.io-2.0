@@ -6,13 +6,6 @@ from PodSixNet.Server import Server
 import uuid
 import random
 
-import os
-import sys
-
-# This is needed so that the file can import Screen and Camera from the main project directory
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.insert(0, project_root)
-
 from Orbs.orbs import SmallOrb, MediumOrb, LargeOrb
 from Players.player import StandardClass
 
@@ -59,7 +52,7 @@ class GameServer(Server):
         # Initialize a new player and send the player ID to the client
         player_id = str(uuid.uuid4())
         channel.id = player_id
-        new_player = StandardClass("PlayerName", self.world_width, self.world_height)
+        new_player = StandardClass("PlayerName")
         self.players[player_id] = new_player
         channel.Send({"action": "initialize_player", "player_id": player_id, "position": new_player.position})
         print(f"New connection: {player_id} from {addr}")
